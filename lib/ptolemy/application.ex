@@ -8,6 +8,7 @@ defmodule Ptolemy.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Ptolemy.Repo,
       {Plug.Cowboy, scheme: :http, plug: Ptolemy.HelloPlug, options: [port: 4001]}
     ]
 

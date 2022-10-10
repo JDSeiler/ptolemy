@@ -23,7 +23,9 @@ defmodule Ptolemy.MixProject do
   defp deps do
     [
       {:plug, "~> 1.13"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, ">= 0.0.0"}
     ]
   end
 end

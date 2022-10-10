@@ -1,7 +1,14 @@
 # Ptolemy
 
 - `mix deps.get` to install dependencies
-- `mix run --no-halt` to start the server
+- Copy `.env.sample` to `.env` and fill in your desired Postgres password.
+- Copy `config/config_secret.exs.template` to `config/config_secret.exs` and
+  add the same password.
+- `docker-compose up` to start the Postgres server and Adminer
+- `mix run --no-halt` to start the web server
+
+## Ecto Cookbook
+TODO
 
 ## TODO
 
