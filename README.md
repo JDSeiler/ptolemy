@@ -1,5 +1,7 @@
 # Ptolemy
 
+Elixir backend for [Alexandria](https://github.com/JDSeiler/alexandria)
+
 - `mix deps.get` to install dependencies
 - Copy `.env.sample` to `.env` and fill in your desired Postgres password.
 - Copy `config/config_secret.exs.template` to `config/config_secret.exs` and
