@@ -25,3 +25,5 @@ ptolemy-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# Ignore .env file -- used by Docker
+.env
