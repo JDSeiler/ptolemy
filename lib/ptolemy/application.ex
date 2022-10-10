@@ -7,14 +7,16 @@ defmodule Ptolemy.Application do
 
   @impl true
   def start(_type, _args) do
+    port = 4001
     children = [
       Ptolemy.Repo,
-      {Plug.Cowboy, scheme: :http, plug: Ptolemy.HelloPlug, options: [port: 4001]}
+      {Plug.Cowboy, scheme: :http, plug: Ptolemy.HelloPlug, options: [port: port]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Ptolemy.Supervisor]
+    IO.puts("Listening on localhost:#{port}")
     Supervisor.start_link(children, opts)
   end
 end

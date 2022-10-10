@@ -29,7 +29,7 @@ Useful commands:
 ## TODO
 
 1. ~~Get Ecto up and running~~ :: DONE
-2. Get a JSON parsing example working (JSON request body and JSON response)
+2. ~~Get a JSON parsing example working (JSON request body and JSON response)~~ :: DONE
 3. Get a JWT example working
     - Create a signed JWT and send it to the client
     - Write a plug to validate JWTs sent in the Authorization header.

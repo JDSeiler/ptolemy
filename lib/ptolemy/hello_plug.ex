@@ -13,6 +13,8 @@ defmodule Ptolemy.HelloPlug do
     send_resp(conn, 200, "Hello #{name}!")
   end
 
+  forward "/json", to: Ptolemy.JsonExample
+
   # `forward` can be used to compose routers and other plugs.
   # "child plugs" can specify additional plugs that only apply to themselves and their children!
   # For example, SuperSecret uses BasicAuth to protect the secret.
