@@ -26,7 +26,8 @@ defmodule Ptolemy.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.4"}
+      {:jason, "~> 1.4"},
+      {:joken, "~> 2.5"},
     ]
   end
 end
