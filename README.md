@@ -5,7 +5,9 @@ Elixir backend for [Alexandria](https://github.com/JDSeiler/alexandria)
 - `mix deps.get` to install dependencies
 - Copy `.env.sample` to `.env` and fill in your desired Postgres password.
 - Copy `config/config_secret.exs.template` to `config/config_secret.exs` and
-  add the same password.
+  add the same password in the `Ptolemy.Repo.password` field.
+- Generate a long, random string that Joken can use as its key when signing with HS256.
+  - For example: `openssl rand -base64 512`
 - `docker-compose up` to start the Postgres server and Adminer
 - `mix run --no-halt` to start the web server
 
@@ -30,7 +32,7 @@ Useful commands:
 
 1. ~~Get Ecto up and running~~ :: DONE
 2. ~~Get a JSON parsing example working (JSON request body and JSON response)~~ :: DONE
-3. Get a JWT example working
+3. ~~Get a JWT example working~~ :: DONE
     - Create a signed JWT and send it to the client
     - Write a plug to validate JWTs sent in the Authorization header.
 4. Set up email sending with SendGrid or somethin'

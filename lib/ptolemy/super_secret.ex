@@ -1,10 +1,10 @@
 defmodule Ptolemy.SuperSecret do
   use Plug.Builder
 
-  # This is just to test how plugs behave when you specify
-  # them at different levels of the plug tree.
-  import Plug.BasicAuth
-  plug :basic_auth, username: "admin", password: "password"
+  # Here, we protect an endpoint using our validation plug by simply including
+  # it in the pipeline. If the request doesn't have a valid Authorization
+  # header then it will terminate with the appropriate HTTP error code.
+  plug Ptolemy.ValidateJwt
 
   plug :handle_request
 

@@ -10,8 +10,8 @@ defmodule Ptolemy.JsonExample do
     conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")
     # Expects {"operands": number[]}
     sum = Enum.sum(conn.body_params["operands"])
-    {:ok, resp_body} = Jason.encode(%{sum: sum})
+    {:ok, token, _claims} = Ptolemy.Token.generate_and_sign(%{"sub" => "user_number #{sum}"})
+    {:ok, resp_body} = Jason.encode(%{token: token})
     send_resp(conn, 200, resp_body)
   end
-
 end
