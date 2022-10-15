@@ -1,6 +1,7 @@
 defmodule Ptolemy.Controllers.Auth.Create do
   use Plug.Builder
   alias Ptolemy.Schemas.User, as: User
+  alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
   import Ptolemy.Helpers.Validators, only: [validate_body_params: 2]
 
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
@@ -21,13 +22,13 @@ defmodule Ptolemy.Controllers.Auth.Create do
         username: params["username"],
         password: hashed_password,
         salt: salt,
-        email_verification_status: "unverified"
+        email_verification_status: "pending"
       })
 
     with {:ok, user} <- Ptolemy.Repo.insert(new_user) do
       key = Base.url_encode64(:crypto.strong_rand_bytes(64))
 
-      set_verification_key(user.email, key)
+      set_verification_code(user.email, key)
 
       # Just print whether the verification email sent or not.
       case send_verification_email(user, key) do
@@ -55,12 +56,8 @@ defmodule Ptolemy.Controllers.Auth.Create do
     end)
   end
 
-  defp set_verification_key(email, verification_key) do
-    tid = :ets.whereis(:pending_verification)
-
-    tid = if tid == :undefined do
-      :ets.new(:pending_verification, [:named_table])
-    end
+  defp set_verification_code(email, verification_code) do
+    Ptolemy.Repo.insert(%VerificationCode{email: email, code: verification_code})
 
     # Current time in seconds since the Epoch
     # now = DateTime.utc_now() |> DateTime.to_unix()
@@ -70,8 +67,6 @@ defmodule Ptolemy.Controllers.Auth.Create do
     # I COULD store an "expires_at" time with the key.
     # But I don't want to deal with having to resend emails.
     # So for now, verification keys will stay valid forever.
-
-    :ets.insert(tid, {email, verification_key})
   end
 
   defp send_verification_email(user, verification_key) do

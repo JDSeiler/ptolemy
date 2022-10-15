@@ -2,7 +2,7 @@ defmodule Ptolemy.Helpers.Validators do
   import Plug.Conn
 
   def validate_query_params(conn, opts) do
-    fetch_query_params(conn)
+    conn = fetch_query_params(conn)
     result = validate_map(conn.query_params, opts)
 
     case result do
