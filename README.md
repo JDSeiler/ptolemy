@@ -4,10 +4,12 @@ Elixir backend for [Alexandria](https://github.com/JDSeiler/alexandria)
 
 - `mix deps.get` to install dependencies
 - Copy `.env.sample` to `.env` and fill in your desired Postgres password.
-- Copy `config/config_secret.exs.template` to `config/config_secret.exs` and
-  add the same password in the `Ptolemy.Repo.password` field.
-- Generate a long, random string that Joken can use as its key when signing with HS256.
-  - For example: `openssl rand -base64 512`
+- Copy `config/config_secret.exs.template` to `config/config_secret.exs` and fill in the fields
+  - Add your Postgres password to the `Ptolemy.Repo.password` field
+  - Generate a long, random string that Joken can use as its signing key. Perhaps with `openssl rand -base64 512`
+    - Put the token in `joken.default_signer` field
+  - Fill out the `Ptolemy.MailJet.api_key` and `Ptolemy.MailJet.api_secret` fields
+
 - `docker-compose up` to start the Postgres server and Adminer
 - `mix run --no-halt` to start the web server
 
@@ -27,13 +29,3 @@ Useful commands:
     - Both migrate and rollback have extra options to control which migrations to
       run or rollback, such as `--step`, `--to`, etc. See the `ecto_sql` docs.
     - `mix ecto.migrations` :: Show all migrations and their status
-
-## TODO
-
-1. ~~Get Ecto up and running~~ :: DONE
-2. ~~Get a JSON parsing example working (JSON request body and JSON response)~~ :: DONE
-3. ~~Get a JWT example working~~ :: DONE
-    - Create a signed JWT and send it to the client
-    - Write a plug to validate JWTs sent in the Authorization header.
-4. Set up email sending with SendGrid or somethin'
-5. Write full auth flow?!?

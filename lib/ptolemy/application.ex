@@ -10,7 +10,7 @@ defmodule Ptolemy.Application do
     port = 4001
     children = [
       Ptolemy.Repo,
-      {Plug.Cowboy, scheme: :http, plug: Ptolemy.HelloPlug, options: [port: port]}
+      {Plug.Cowboy, scheme: :http, plug: Ptolemy.RootRouter, options: [port: port]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
