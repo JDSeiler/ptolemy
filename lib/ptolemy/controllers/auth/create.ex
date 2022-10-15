@@ -27,7 +27,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     with {:ok, user} <- Ptolemy.Repo.insert(new_user) do
       key = Base.url_encode64(:crypto.strong_rand_bytes(64))
 
-      set_verification_key(key)
+      set_verification_key(user.email, key)
 
       # Just print whether the verification email sent or not.
       case send_verification_email(user, key) do
@@ -55,7 +55,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     end)
   end
 
-  defp set_verification_key(verification_key) do
+  defp set_verification_key(email, verification_key) do
     tid = :ets.whereis(:pending_verification)
 
     tid = if tid == :undefined do
@@ -71,7 +71,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     # But I don't want to deal with having to resend emails.
     # So for now, verification keys will stay valid forever.
 
-    :ets.insert(tid, {:email, verification_key})
+    :ets.insert(tid, {email, verification_key})
   end
 
   defp send_verification_email(user, verification_key) do
