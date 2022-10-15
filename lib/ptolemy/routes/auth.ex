@@ -2,21 +2,14 @@ defmodule Ptolemy.Routes.Auth do
   alias Ptolemy.Controllers.Auth, as: Auth
   use Plug.Router
 
-  plug Plug.Logger
   plug :match
   plug :dispatch
 
   post "/create", to: Auth.Create
 
-  post "/verify" do
+  post "/verify", to: Auth.Verify
 
-  end
+  # post "/login", to: Auth.Login
 
-  post "/login" do
-
-  end
-
-  post "/refresh" do
-
-  end
+  # post "/refresh", to: Auth.Refresh
 end

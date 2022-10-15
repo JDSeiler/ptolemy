@@ -1,13 +1,15 @@
 defmodule Ptolemy.Controllers.Auth.Create do
   use Plug.Builder
   alias Ptolemy.Schemas.User, as: User
+  import Ptolemy.Helpers.Validators, only: [validate_body_params: 2]
 
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
-  plug(:validate_params, ["email", "username", "password"])
+  plug(:validate_body_params, ["email", "username", "password"])
   plug(:handle_request)
 
   def handle_request(conn, _opts) do
-    params = conn.assigns[:validated_params]
+    # assigned by `validate_body_params`
+    params = conn.assigns[:validated_body_params]
     salt = Base.encode64(:crypto.strong_rand_bytes(16))
     # The hash just produces a bunch of bytes, base64 encoding them makes sure that
     # they can be easily represented in the databse.
@@ -45,25 +47,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     end
   end
 
-  def validate_params(conn, opts) do
-    params = conn.body_params
-
-    result =
-      Enum.reduce_while(opts, %{}, fn param, acc ->
-        case get_field(params, param) do
-          {:ok, v} ->
-            {:cont, Map.put(acc, param, v)}
-
-          {:not_found, missing_param} ->
-            {:halt, {:error, "Required parameter `#{missing_param}` was not found"}}
-        end
-      end)
-
-    case result do
-      {:error, msg} -> halt(send_resp(conn, 422, msg))
-      v when is_map(v) -> assign(conn, :validated_params, v)
-    end
-  end
+  # Private Functions
 
   defp reformat_errors_for_json(errors) do
     Enum.map(errors, fn {key, {msg, _details}} ->
@@ -71,22 +55,23 @@ defmodule Ptolemy.Controllers.Auth.Create do
     end)
   end
 
-  defp get_field(body_params, param_name) do
-    case Map.fetch(body_params, param_name) do
-      :error -> {:not_found, param_name}
-      {:ok, v} -> {:ok, v}
-    end
-  end
-
   defp set_verification_key(verification_key) do
     tid = :ets.whereis(:pending_verification)
 
-    if tid == :undefined do
-      tid = :ets.new(:pending_verification, [:named_table])
-      :ets.insert(tid, {:email, verification_key})
-    else
-      :ets.insert(tid, {:email, verification_key})
+    tid = if tid == :undefined do
+      :ets.new(:pending_verification, [:named_table])
     end
+
+    # Current time in seconds since the Epoch
+    # now = DateTime.utc_now() |> DateTime.to_unix()
+    # Add 12 hours in seconds
+    # expires_at = now + 43200
+
+    # I COULD store an "expires_at" time with the key.
+    # But I don't want to deal with having to resend emails.
+    # So for now, verification keys will stay valid forever.
+
+    :ets.insert(tid, {:email, verification_key})
   end
 
   defp send_verification_email(user, verification_key) do
