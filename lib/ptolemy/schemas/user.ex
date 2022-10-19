@@ -1,7 +1,7 @@
 defmodule Ptolemy.Schemas.User do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Ptolemy.Schemas.VerificiationCode, as: VerificationCode
+  alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
 
   schema "users" do
     field :email
