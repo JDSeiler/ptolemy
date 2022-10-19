@@ -11,14 +11,15 @@ defmodule Ptolemy.Controllers.Auth.Verify do
     # assigned by `validate_query_params
     params = conn.assigns[:validated_query_params]
 
-    with {:ok, stored_code} <- lookup_code(params["email"]) do
-      if stored_code == params["code"] do
+    with {:ok, verification_entry} <- lookup_code(params["email"]) do
+      if verification_entry.code == params["code"] do
         user = Ptolemy.Repo.get_by(User, email: params["email"])
         user = Ecto.Changeset.change(user, %{email_verification_status: "verified"})
 
         case Ptolemy.Repo.update(user) do
-          # TODO: Delete the verification code. Otherwise the disk will slowly fill.
-          {:ok, _} -> halt send_resp(conn, 204, "")
+          {:ok, _} ->
+            Ptolemy.Repo.delete(verification_entry)
+            halt send_resp(conn, 204, "")
           {:error, changeset} ->
             IO.inspect changeset.errors
             halt send_resp(conn, 422, "Could not update verification status in the database")
@@ -34,7 +35,7 @@ defmodule Ptolemy.Controllers.Auth.Verify do
   defp lookup_code(associated_email) do
     case Ptolemy.Repo.get_by(VerificationCode, email: associated_email) do
       nil -> :error
-      vc -> {:ok, vc.code}
+      vc -> {:ok, vc}
     end
   end
 end

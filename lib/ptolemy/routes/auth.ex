@@ -10,6 +10,4 @@ defmodule Ptolemy.Routes.Auth do
   post "/verify", to: Auth.Verify
 
   # post "/login", to: Auth.Login
-
-  # post "/refresh", to: Auth.Refresh
 end
