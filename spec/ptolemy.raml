@@ -1,0 +1,122 @@
+#%RAML 1.0
+---
+title: Ptolemy
+baseUri: http://localhost:4001/
+version: v1
+
+/auth:
+  /create:
+    post:
+      description: Create a new user account
+      body:
+        application/json:
+          properties:
+            email: string
+            username: string
+            password: string
+          example:
+            email: jds@example.com
+            username: jds
+            password: sooper_secret
+      responses:
+        201:
+          description: |
+            Account was created and an email address verification email was sent.
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Created
+                details: []
+        422:
+          description: |
+            Account was not created, there were problems with the provided
+            account details.
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Unprocessable Entity
+                details: [TODO]
+  /verify:
+    post:
+      description: Verify the email for a user account
+      queryParameters: 
+        email:
+          description: The email to be verified
+          type: string
+          required: true
+          example: jds@example.com
+        code:
+          description: |
+            Base64 encoded random number, provided via an email sent to the address
+            specified by the `email` parameter.
+          type: string
+          required: true
+          example: S8rNJ84-xVOyIwyEpzBMd8INsnMN0hB0x_6gP6-iN4duzwZ7l9BqzKpjes6r9mE6acd_LFTmEzKcY50gzbGIHg==
+      responses:
+        204:
+          description: Account was verified successfully
+        422:
+          description: |
+            Account was not verified because the provided code is invalid or
+            does not match the code stored for the specified `email`.
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Unprocessable Entity 
+                details: [Provided code is invalid]
+        500:
+          description: |
+            The server was unable to update the verification status for this address.
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Internal Server Error
+                details: [Could not update verification status in the database]
+  /login:
+    post:
+      description: Log a user in
+      body:
+        application/json:
+          properties: 
+            username: string
+            password: string
+          example:
+            username: jds
+            password: sooper_secret
+      responses: 
+        200:
+          description: Authentication was successful
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Ok
+                details: []
+          headers:
+            Set-Cookie:
+              description: A session cookie that authenticates the user.
+            X-Csrf-Token:
+              description: A Cross-Site Request Forgery countermeasure.
+        401:
+          description: Authentication failed
+          body:
+            application/json:
+              type: Info
+              example:
+                message: Unauthorized
+                details: [Username or password is incorrect]
+    
+types:
+  Info:
+    description: |
+      An informational response. The `message` property is a status message
+      that should correspond to the HTTP status code's default message. The
+      `details` property is a list (possibly empty) of additional informational
+      messages.
+    properties:
+      message: string
+      details: string[]
