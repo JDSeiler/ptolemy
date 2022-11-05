@@ -3,6 +3,7 @@ defmodule Ptolemy.Controllers.Auth.Verify do
   alias Ptolemy.Schemas.User, as: User
   alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
   import Ptolemy.Helpers.Validators, only: [validate_query_params: 2]
+  import Ptolemy.Helpers.Responses
 
   plug(:validate_query_params, ["email", "code"])
   plug(:handle_request)
@@ -19,16 +20,35 @@ defmodule Ptolemy.Controllers.Auth.Verify do
         case Ptolemy.Repo.update(user) do
           {:ok, _} ->
             Ptolemy.Repo.delete(verification_entry)
-            halt send_resp(conn, 204, "")
+
+            send_resp(conn, 204, "")
+            |> halt()
+
           {:error, changeset} ->
-            IO.inspect changeset.errors
-            halt send_resp(conn, 422, "Could not update verification status in the database")
+            IO.inspect(changeset.errors)
+
+            put_resp_header(conn, "content-type", "application/json")
+            |> send_resp(
+              500,
+              information("Internal Server Error", [
+                "Could not update verification status in the database"
+              ])
+            )
+            |> halt()
         end
       else
-        halt send_resp(conn, 422, "Provided code does not match stored code for #{params["email"]}")
+        put_resp_header(conn, "content-type", "application/json")
+        |> send_resp(
+          422,
+          information("Unprocessable Entity", ["Provided code is invalid"])
+        )
+        |> halt()
       end
     else
-      :error -> halt send_resp(conn, 422, "No verification code found for #{params["email"]}")
+      :error ->
+        put_resp_header(conn, "content-type", "application/json")
+        |> send_resp(422, information("Unprocessable Entity", ["Provided code is invalid"]))
+        |> halt()
     end
   end
 
