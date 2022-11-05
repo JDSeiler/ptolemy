@@ -30,3 +30,6 @@ ptolemy-*.tar
 
 # Ignore secret config file, used by Elixir
 config/config_secret.exs
+
+# Ignore built RAML documentation
+spec/*.html

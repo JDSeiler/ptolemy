@@ -3,6 +3,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
   alias Ptolemy.Schemas.User, as: User
   alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
   import Ptolemy.Helpers.Validators, only: [validate_body_params: 2]
+  import Ptolemy.Helpers.Responses
 
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
   plug(:validate_body_params, ["email", "username", "password"])
@@ -26,25 +27,26 @@ defmodule Ptolemy.Controllers.Auth.Create do
       })
 
     with {:ok, user} <- Ptolemy.Repo.insert(new_user) do
-      key = Base.url_encode64(:crypto.strong_rand_bytes(64))
+      verification_code = Base.url_encode64(:crypto.strong_rand_bytes(64))
 
-      set_verification_code(user.email, key)
+      set_verification_code(user.email, verification_code)
 
       # Just print whether the verification email sent or not.
-      case send_verification_email(user, key) do
+      # TODO: I should send an error response and rollback the insertion
+      # if the email fails to send.
+      case send_verification_email(user, verification_code) do
         :ok -> IO.puts("Email sent successfully")
         {:error, msg} -> IO.puts(msg)
       end
 
-      send_resp(conn, 200, "Verification key for email: #{user.email} is #{key}")
+      IO.puts("Verification code for email: #{user.email} is #{verification_code}")
+
+      send_resp(conn, 201, information("Created"))
     else
       {:error, changeset} ->
         error_list = reformat_errors_for_json(changeset.errors)
-        {:ok, error_resp} = Jason.encode(%{errors: error_list})
-        conn = Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        send_resp(conn, 422, error_resp)
-      _ ->
-        send_resp(conn, 500, "Unknown error occurred!")
+        Plug.Conn.put_resp_header(conn, "content-type", "application/json")
+        |> send_resp(422, information("Unprocessable Entity", error_list))
     end
   end
 
@@ -52,7 +54,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
 
   defp reformat_errors_for_json(errors) do
     Enum.map(errors, fn {key, {msg, _details}} ->
-      %{:field => key, :error => msg}
+      "#{key} has the following error: #{msg}"
     end)
   end
 
@@ -69,7 +71,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     # So for now, verification keys will stay valid forever.
   end
 
-  defp send_verification_email(user, verification_key) do
+  defp send_verification_email(user, verification_code) do
     mailjet_config = Application.get_env(:ptolemy, MailJet)
     api_key = Keyword.get(mailjet_config, :api_key)
     api_secret = Keyword.get(mailjet_config, :api_secret)
@@ -80,7 +82,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     # That's bad, and I should do it. But it's not super important right now.
     :ssl.start()
 
-    query_params = %{"email" => user.email, "key" => verification_key}
+    query_params = %{"email" => user.email, "code" => verification_code}
     encoded_query_params = URI.encode_query(query_params)
 
     {:ok, request_body} =
