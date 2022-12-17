@@ -7,7 +7,8 @@ can be used to view the documentation in an HTML preview.
 The `serve_docs` script has several dependencies:
 - python3 (for the http server)
 - raml2html :: `npm install -g raml2html`
-- inotify-utils :: `supdo apt install inotify-utils`
+- inotify-utils :: `sudo apt install inotify-utils`
+    - Depending on your specific OS, you may need to install `inotify-tools` instead
 - xdg-utils :: `sudo apt install xdg-utils`
 
 On WSL, you also need to install `wslu` and set the `BROWSER` variable to `wslview`, as per: https://superuser.com/a/1368878
