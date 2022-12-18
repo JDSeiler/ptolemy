@@ -31,15 +31,14 @@ defmodule Ptolemy.Controllers.Auth.Create do
 
       set_verification_code(user.email, verification_code)
 
-      # Just print whether the verification email sent or not.
-      # TODO: I should send an error response and rollback the insertion
-      # if the email fails to send.
-      case send_verification_email(user, verification_code) do
-        :ok -> IO.puts("Email sent successfully")
-        {:error, msg} -> IO.puts(msg)
+      if Application.get_env(:ptolemy, :enable_mailer) == "true" do
+        case send_verification_email(user, verification_code) do
+          :ok -> IO.puts("Email sent successfully")
+          {:error, msg} -> IO.puts(msg)
+        end
+      else
+        IO.puts("Verification code for email: #{user.email} is #{verification_code}")
       end
-
-      IO.puts("Verification code for email: #{user.email} is #{verification_code}")
 
       send_resp(conn, 201, information("Created"))
     else

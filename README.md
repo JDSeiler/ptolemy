@@ -14,6 +14,14 @@ Elixir backend for [Alexandria](https://github.com/JDSeiler/alexandria)
 - `docker-compose up` to start the Postgres server and Adminer
 - `mix run --no-halt` to start the web server
 
+## Optional Configuration
+The following environment variables can be configured:
+- `PTOLEMY_ENABLE_MAIL` :: (defaults to `true` if unset) If this is set to
+  *any* other value besides `true`, then "Verify your account" emails will not
+  be sent. Instead, verification codes will be logged to the debug console.
+  This is useful if you're developing and don't want to wait for verification
+  emails, or want to avoid using up quota.
+
 ## Ecto Cookbook
 Docs: 
 - https://hexdocs.pm/ecto/Ecto.html
