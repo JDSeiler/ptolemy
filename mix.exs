@@ -7,9 +7,16 @@ defmodule Ptolemy.MixProject do
       version: "0.1.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      elixirc_paths: elixirc_paths(Mix.env()),
+      aliases: aliases()
     ]
   end
+
+  # What files get compiled in each environment?
+  # https://hexdocs.pm/ecto/testing-with-ecto.html
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
@@ -28,6 +35,13 @@ defmodule Ptolemy.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.4"},
       {:joken, "~> 2.5"},
+    ]
+  end
+
+  # https://hexdocs.pm/ecto/testing-with-ecto.html
+  defp aliases do
+    [
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
 end
