@@ -14,7 +14,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     params = conn.assigns[:validated_body_params]
     salt = Base.encode64(:crypto.strong_rand_bytes(16))
     # The hash just produces a bunch of bytes, base64 encoding them makes sure that
-    # they can be easily represented in the databse.
+    # they can be easily represented in the database.
     hashed_password = Base.encode64(:crypto.hash(:sha256, "#{params["password"]}:#{salt}"))
 
     new_user =

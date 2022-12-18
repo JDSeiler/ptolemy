@@ -34,7 +34,7 @@ Useful commands:
 - `mix ecto.create` :: Sets up the initial database
 - `mix ecto.gen.migration <name>` :: Creates a migration
     - `mix ecto.migrate` :: Run migrations
-    - `mix ecto.rollback` :: Rollback migations
+    - `mix ecto.rollback` :: Rollback migrations
     - Both migrate and rollback have extra options to control which migrations to
       run or rollback, such as `--step`, `--to`, etc. See the `ecto_sql` docs.
     - `mix ecto.migrations` :: Show all migrations and their status
