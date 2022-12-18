@@ -29,6 +29,16 @@ defmodule Ptolemy.Services.MailJetMailer do
     content_type = 'application/json'
     body = to_charlist(request_body)
 
+    httpc_options = [
+      ssl: [
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ]
+      ]
+    ]
+
     {sent_status, result} =
       :httpc.request(
         :post,
@@ -38,9 +48,7 @@ defmodule Ptolemy.Services.MailJetMailer do
           content_type,
           body
         },
-        # Supposedly returns a list of ssl options such that this request
-        # will verify the host.
-        :httpc.ssl_verify_host_options(true),
+        httpc_options,
         []
       )
 
