@@ -1,6 +1,8 @@
 import Config
 
-config :ptolemy, ecto_repos: [Ptolemy.Repo]
+config :ptolemy,
+  ecto_repos: [Ptolemy.Repo],
+  mailer: Ptolemy.Services.MailJetMailer
 
 config :ptolemy, Ptolemy.Repo,
   database: "ptolemy",
