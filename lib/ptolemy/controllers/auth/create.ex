@@ -72,52 +72,19 @@ defmodule Ptolemy.Controllers.Auth.Create do
   end
 
   defp send_verification_email(user, verification_code) do
-    mailjet_config = Application.get_env(:ptolemy, MailJet)
-    api_key = Keyword.get(mailjet_config, :api_key)
-    api_secret = Keyword.get(mailjet_config, :api_secret)
-    authorization_header = "Basic #{Base.encode64("#{api_key}:#{api_secret}")}"
-
-    :inets.start()
-    # TODO: I'm not actually verifying any SSL certificates.
-    # That's bad, and I should do it. But it's not super important right now.
-    :ssl.start()
+    subject = "Verify your email"
 
     query_params = %{"email" => user.email, "code" => verification_code}
     encoded_query_params = URI.encode_query(query_params)
+    html_body = "Please verify your email by visiting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
 
-    {:ok, request_body} =
-      Jason.encode(%{
-        FromEmail: "learn1reactbase@gmail.com",
-        FromName: "Ptolemy",
-        Recipients: [
-          %{
-            Email: user.email,
-            Name: user.username
-          }
-        ],
-        Subject: "Verify your email address",
-        "Html-Part":
-          "Please verify your email by visting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
-      })
+    recipients = [
+      %{
+        Email: user.email,
+        Name: user.username
+      }
+    ]
 
-    {sent_status, result} =
-      :httpc.request(
-        :post,
-        {
-          'https://api.mailjet.com/v3/send',
-          [
-            {'authorization', to_charlist(authorization_header)}
-          ],
-          'application/json',
-          to_charlist(request_body)
-        },
-        [],
-        []
-      )
-
-    case sent_status do
-      :ok -> :ok
-      :error -> {:error, "email send failed with #{to_string(result)}"}
-    end
+    Ptolemy.Services.Mailer.send_email(subject, html_body, recipients)
   end
 end
