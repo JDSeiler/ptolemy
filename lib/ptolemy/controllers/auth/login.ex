@@ -28,7 +28,7 @@ defmodule Ptolemy.Controllers.Auth.Login do
         # TODO: I can make the cookie much smaller by just storing an ID
         # and storing all the information server-side in a genserver process.
         conn
-        |> put_session(:authenticated_user, user)
+        |> put_session(:authenticated_user, filter_sensitive_user_info(user))
         |> put_resp_header("x-csrf-token", fresh_token)
         |> put_resp_header("content-type", "application/json")
         |> send_resp(200, information("Ok"))
@@ -47,5 +47,12 @@ defmodule Ptolemy.Controllers.Auth.Login do
         |> send_resp(401, information("Unauthorized", ["Username or password is incorrect"]))
         |> halt()
     end
+  end
+
+  # The session is sent to the user as an encrypted and signed cookie. Despite
+  # being encrypted, we should avoid sending sensitive or useless fields entirely.
+  defp filter_sensitive_user_info(user) do
+    Map.from_struct(user)
+    |> Map.drop([:password, :salt, :code, :__meta__])
   end
 end
