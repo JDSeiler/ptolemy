@@ -24,24 +24,11 @@ defmodule Ptolemy.Controllers.Auth.CreateTest do
     assert conn.state == :sent
     assert conn.status == 201
 
-    verify_user_added =
-      from(u in User,
-        where: u.email == "test@example.com",
-        select: u
-      )
-    matching_users = Repo.all(verify_user_added)
+    new_user = Repo.get_by!(User, email: "test@example.com")
+    assert new_user.email_verification_status == "pending"
 
-    assert length(matching_users) == 1
-    assert List.first(matching_users).email_verification_status == "pending"
-
-    verify_code_added =
-      from(c in VerificationCode,
-        where: c.email == "test@example.com",
-        select: c
-      )
-    matching_codes = Repo.all(verify_code_added)
-
-    assert length(matching_codes) == 1
+    code = Repo.get_by!(VerificationCode, email: "test@example.com")
+    assert code != nil
   end
 
   test "account creation fails when insufficient parameters supplied" do
@@ -103,24 +90,11 @@ defmodule Ptolemy.Controllers.Auth.CreateTest do
     assert conn.status == 422
     assert conn.resp_body == "{\"details\":[\"email has the following error: has already been taken\"],\"message\":\"Unprocessable Entity\"}"
 
-    verify_user_added =
-      from(u in User,
-        where: u.email == "test@example.com",
-        select: u
-      )
-    matching_users = Repo.all(verify_user_added)
+    new_user = Repo.get_by!(User, email: "test@example.com")
+    assert new_user.email_verification_status == "pending"
 
-    assert length(matching_users) == 1
-    assert List.first(matching_users).email_verification_status == "pending"
-
-    verify_code_added =
-      from(c in VerificationCode,
-        where: c.email == "test@example.com",
-        select: c
-      )
-    matching_codes = Repo.all(verify_code_added)
-
-    assert length(matching_codes) == 1
+    code = Repo.get_by!(VerificationCode, email: "test@example.com")
+    assert code != nil
   end
 
   test "account creation fails when username already taken" do
@@ -142,25 +116,10 @@ defmodule Ptolemy.Controllers.Auth.CreateTest do
     assert conn.status == 422
     assert conn.resp_body == "{\"details\":[\"username has the following error: has already been taken\"],\"message\":\"Unprocessable Entity\"}"
 
-    verify_user_added =
-      from(u in User,
-        where: u.username == "jds",
-        select: u
-      )
-    matching_users = Repo.all(verify_user_added)
+    new_user = Repo.get_by!(User, email: "test@example.com")
+    assert new_user.email_verification_status == "pending"
 
-    assert length(matching_users) == 1
-    assert List.first(matching_users).email_verification_status == "pending"
-
-    user_email = List.first(matching_users).email
-
-    verify_code_added =
-      from(c in VerificationCode,
-        where: c.email == ^user_email,
-        select: c
-      )
-    matching_codes = Repo.all(verify_code_added)
-
-    assert length(matching_codes) == 1
+    code = Repo.get_by!(VerificationCode, email: new_user.email)
+    assert code != nil
   end
 end
