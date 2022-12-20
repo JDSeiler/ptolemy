@@ -14,6 +14,14 @@ Elixir backend for [Alexandria](https://github.com/JDSeiler/alexandria)
 - `docker-compose up` to start the Postgres server and Adminer
 - `mix run --no-halt` to start the web server
 
+## Optional Configuration
+The following environment variables can be configured:
+- `PTOLEMY_ENABLE_MAIL` :: (defaults to `true` if unset) If this is set to
+  *any* other value besides `true`, then "Verify your account" emails will not
+  be sent. Instead, verification codes will be logged to the debug console.
+  This is useful if you're developing and don't want to wait for verification
+  emails, or want to avoid using up quota.
+
 ## Ecto Cookbook
 Docs: 
 - https://hexdocs.pm/ecto/Ecto.html
@@ -26,7 +34,7 @@ Useful commands:
 - `mix ecto.create` :: Sets up the initial database
 - `mix ecto.gen.migration <name>` :: Creates a migration
     - `mix ecto.migrate` :: Run migrations
-    - `mix ecto.rollback` :: Rollback migations
+    - `mix ecto.rollback` :: Rollback migrations
     - Both migrate and rollback have extra options to control which migrations to
       run or rollback, such as `--step`, `--to`, etc. See the `ecto_sql` docs.
     - `mix ecto.migrations` :: Show all migrations and their status

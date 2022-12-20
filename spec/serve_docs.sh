@@ -1,5 +1,7 @@
 #!/bin/bash
 
+raml2html ptolemy.raml > ptolemy.html
+
 python3 -m http.server 9000 &
 
 xdg-open http://localhost:9000/ptolemy.html

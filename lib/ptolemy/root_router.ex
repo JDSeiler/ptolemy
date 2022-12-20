@@ -9,8 +9,14 @@ defmodule Ptolemy.RootRouter do
     key: "_ptolemy",
     http_only: true,
     # TODO: use Secure attribute on the cookie
-    encryption_salt: Application.get_env(:ptolemyl, :encryption_salt),
-    signing_salt: Application.get_env(:ptolemy, :signing_salt),
+    # I can only set up the Secure attribute once Ptolemy is being
+    # accessed via HTTPS
+    # Setting `encryption_salt` to nil (the default) turns of encryption.
+    # Is encryption even doing anything for me here aside from making
+    # the code "feel cooler" because it's encrypted? That and taking
+    # up CPU cycles?
+    encryption_salt: Application.compile_env(:ptolemy, :encryption_salt),
+    signing_salt: Application.compile_env(:ptolemy, :signing_salt),
     log: :debug
   )
 
@@ -25,7 +31,7 @@ defmodule Ptolemy.RootRouter do
 
   forward("/auth", to: Ptolemy.Routes.Auth)
 
-  # Ripped straight from the Plug.Router logs
+  # Ripped straight from the Plug.Router docs
   @impl Plug.ErrorHandler
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
     encode_result =
