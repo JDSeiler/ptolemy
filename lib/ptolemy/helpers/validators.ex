@@ -1,6 +1,7 @@
 defmodule Ptolemy.Helpers.Validators do
   import Plug.Conn
 
+  @spec validate_query_params(Plug.Conn.t(), list(String.t)) :: Plug.Conn.t()
   def validate_query_params(conn, opts) do
     conn = fetch_query_params(conn)
     result = validate_map(conn.query_params, opts)
@@ -11,6 +12,7 @@ defmodule Ptolemy.Helpers.Validators do
     end
   end
 
+  @spec validate_body_params(Plug.Conn.t(), list(String.t)) :: Plug.Conn.t()
   def validate_body_params(conn, opts) do
     params = conn.body_params
     result = validate_map(params, opts)
