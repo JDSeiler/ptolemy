@@ -25,7 +25,7 @@ defmodule Ptolemy.RootRouter do
 
   forward("/auth", to: Ptolemy.Routes.Auth)
 
-  # Ripped straight from the Plug.Router logs
+  # Ripped straight from the Plug.Router docs
   @impl Plug.ErrorHandler
   def handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
     encode_result =
