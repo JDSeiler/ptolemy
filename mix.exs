@@ -35,6 +35,7 @@ defmodule Ptolemy.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.4"},
       {:joken, "~> 2.5"},
+      {:mox, "~> 1.0.2", only: :test}
     ]
   end
 

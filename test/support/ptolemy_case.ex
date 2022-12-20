@@ -1,8 +1,3 @@
-
-# This file contains the unit test template all other tests will build on.
-# It has two main goals:
-# 1. Set up a test environment for Ecto
-# 2. (TODO) Set up any global mocks via Mox
 defmodule Ptolemy.Case do
   use ExUnit.CaseTemplate
 
