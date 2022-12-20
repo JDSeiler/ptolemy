@@ -6,5 +6,5 @@ config :ptolemy, Ptolemy.Repo,
   database: "ptolemy_test",
   username: "postgres",
   password: "OVERRIDE ME IN config_secret.exs",
-  pool: Ecto.Adapters.SQL.Sandbox
-
+  pool: Ecto.Adapters.SQL.Sandbox,
+  log: false

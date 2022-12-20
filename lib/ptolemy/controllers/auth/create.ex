@@ -1,17 +1,22 @@
 defmodule Ptolemy.Controllers.Auth.Create do
   use Plug.Builder
-  alias Ptolemy.Schemas.User, as: User
-  alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
+
+  import Logger
   import Ptolemy.Helpers.Validators, only: [validate_body_params: 2]
   import Ptolemy.Helpers.Responses
 
+  alias Ptolemy.Schemas.User, as: User
+  alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
+
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
   plug(:validate_body_params, ["email", "username", "password"])
+  plug(:reject_empty_params)
   plug(:handle_request)
 
   def handle_request(conn, _opts) do
     # assigned by `validate_body_params`
     params = conn.assigns[:validated_body_params]
+    reject_empty_params(conn, params)
     salt = Base.encode64(:crypto.strong_rand_bytes(16))
     # The hash just produces a bunch of bytes, base64 encoding them makes sure that
     # they can be easily represented in the database.
@@ -33,17 +38,18 @@ defmodule Ptolemy.Controllers.Auth.Create do
 
       if Application.get_env(:ptolemy, :enable_mailer) == "true" do
         case send_verification_email(user, verification_code) do
-          :ok -> IO.puts("Email sent successfully")
-          {:error, msg} -> IO.puts(msg)
+          :ok -> debug("Email sent successfully")
+          {:error, msg} -> error(msg)
         end
       else
-        IO.puts("Verification code for email: #{user.email} is #{verification_code}")
+        debug("Verification code for email: #{user.email} is #{verification_code}")
       end
 
       send_resp(conn, 201, information("Created"))
     else
       {:error, changeset} ->
         error_list = reformat_errors_for_json(changeset.errors)
+
         Plug.Conn.put_resp_header(conn, "content-type", "application/json")
         |> send_resp(422, information("Unprocessable Entity", error_list))
     end
@@ -75,7 +81,9 @@ defmodule Ptolemy.Controllers.Auth.Create do
 
     query_params = %{"email" => user.email, "code" => verification_code}
     encoded_query_params = URI.encode_query(query_params)
-    html_body = "Please verify your email by visiting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
+
+    html_body =
+      "Please verify your email by visiting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
 
     recipients = [
       %{
@@ -85,5 +93,22 @@ defmodule Ptolemy.Controllers.Auth.Create do
     ]
 
     Ptolemy.Services.Mailer.send_email(subject, html_body, recipients)
+  end
+
+  # TODO: Eventually I'd like to wrap this functionality into the validators
+  # but doing it properly would take more effort than I wont to expend right now.
+  defp reject_empty_params(conn, _opts) do
+    alias Plug.Conn
+
+    params = conn.assigns[:validated_body_params]
+
+    Map.keys(params)
+    |> Enum.reduce_while(conn, fn k, acc ->
+      if String.length(params[k]) == 0 do
+        {:halt, Conn.halt(Conn.send_resp(conn, 422, "Required parameter `#{k}` cannot be blank"))}
+      else
+        {:cont, acc}
+      end
+    end)
   end
 end
