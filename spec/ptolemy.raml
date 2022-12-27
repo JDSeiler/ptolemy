@@ -34,10 +34,7 @@ version: v1
             account details.
           body:
             application/json:
-              type: Info
-              example:
-                message: Unprocessable Entity
-                details: [TODO]
+              type: DuplicateFields
   /verify:
     post:
       description: Verify the email for a user account
@@ -138,3 +135,21 @@ types:
   UnverifiedEmail:
     type: Error 
     description: The user attempted to log in without verifying their email.
+  DuplicateFields:
+    type: Error
+    description: |
+      The user tried to create an account but provided an email or username that
+      is already in use. The `details.fields` property contains an array of all
+      fields that are duplicated.
+    properties:
+      kind: string
+      details:
+        type: object
+        properties:
+          fields: string[]
+    example:
+      kind: DuplicateFields
+      details: {
+        fields: [email]
+      }
+
