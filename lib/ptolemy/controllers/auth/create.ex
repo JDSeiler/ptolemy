@@ -3,7 +3,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
 
   import Logger
   import Ptolemy.Helpers.Validators, only: [validate_body_params: 2]
-  import Ptolemy.Helpers.Responses
+  alias Ptolemy.Helpers.Responses, as: Resp
 
   alias Ptolemy.Schemas.User, as: User
   alias Ptolemy.Schemas.VerificationCode, as: VerificationCode
@@ -39,19 +39,19 @@ defmodule Ptolemy.Controllers.Auth.Create do
       if Application.get_env(:ptolemy, :enable_mailer) == "true" do
         case send_verification_email(user, verification_code) do
           :ok -> debug("Email sent successfully")
-          {:error, msg} -> error(msg)
+          {:error, msg} -> Resp.error(msg)
         end
       else
         debug("Verification code for email: #{user.email} is #{verification_code}")
       end
 
-      send_resp(conn, 201, information("Created"))
+      send_resp(conn, 201, Resp.information("Created"))
     else
       {:error, changeset} ->
         error_list = reformat_errors_for_json(changeset.errors)
 
         Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        |> send_resp(422, information("Unprocessable Entity", error_list))
+        |> send_resp(422, Resp.information("Unprocessable Entity", error_list))
     end
   end
 
