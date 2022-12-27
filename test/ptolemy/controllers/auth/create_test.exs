@@ -88,8 +88,12 @@ defmodule Ptolemy.Controllers.Auth.CreateTest do
 
     assert conn.state == :sent
     assert conn.status == 422
-    assert conn.resp_body == "{\"details\":[\"email has the following error: has already been taken\"],\"message\":\"Unprocessable Entity\"}"
+    parsed_body = Jason.decode!(conn.resp_body)
+    assert parsed_body["kind"] == "DuplicateFields"
+    assert match?(["email"], parsed_body["details"]["fields"])
 
+    # here we're just checking that the other user was created properly
+    # and not affected by the other account creation (no extra VC, for ex)
     new_user = Repo.get_by!(User, email: "test@example.com")
     assert new_user.email_verification_status == "pending"
 
@@ -114,8 +118,11 @@ defmodule Ptolemy.Controllers.Auth.CreateTest do
 
     assert conn.state == :sent
     assert conn.status == 422
-    assert conn.resp_body == "{\"details\":[\"username has the following error: has already been taken\"],\"message\":\"Unprocessable Entity\"}"
+    parsed_body = Jason.decode!(conn.resp_body)
+    assert parsed_body["kind"] == "DuplicateFields"
+    assert match?(["username"], parsed_body["details"]["fields"])
 
+    # Again, just checking the user is still set up right.
     new_user = Repo.get_by!(User, email: "test@example.com")
     assert new_user.email_verification_status == "pending"
 

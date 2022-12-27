@@ -20,31 +20,37 @@ defmodule Ptolemy.Controllers.Auth.Login do
       provided_password =
         Base.encode64(:crypto.hash(:sha256, "#{params["password"]}:#{user.salt}"))
 
-      # TODO: I need to verify the user is... verified... before I sign them in.
       if provided_password == user.password do
-        delete_csrf_token()
-        fresh_token = get_csrf_token()
+        if user.email_verification_status != "verified" do
+          configure_session(conn, drop: true)
+          |> put_resp_header("content-type", "application/json")
+          |> send_resp(401, error("UnverifiedEmail"))
+          |> halt()
+        else
+          delete_csrf_token()
+          fresh_token = get_csrf_token()
 
-        # TODO: I can make the cookie much smaller by just storing an ID
-        # and storing all the information server-side in a genserver process.
-        conn
-        |> put_session(:authenticated_user, filter_sensitive_user_info(user))
-        |> put_resp_header("x-csrf-token", fresh_token)
-        |> put_resp_header("content-type", "application/json")
-        |> send_resp(200, information("Ok"))
-        |> halt()
+          # TODO: I can make the cookie much smaller by just storing an ID
+          # and storing all the information server-side in a genserver process.
+          conn
+          |> put_session(:authenticated_user, filter_sensitive_user_info(user))
+          |> put_resp_header("x-csrf-token", fresh_token)
+          |> put_resp_header("content-type", "application/json")
+          |> send_resp(200, information("Ok"))
+          |> halt()
+        end
       else
         # Make sure to drop the session so that we don't send any session cookie.
         configure_session(conn, drop: true)
         |> put_resp_header("content-type", "application/json")
-        |> send_resp(401, information("Unauthorized", ["Username or password is incorrect"]))
+        |> send_resp(401, error("InvalidCredentials"))
         |> halt()
       end
     else
       _ ->
         configure_session(conn, drop: true)
         |> put_resp_header("content-type", "application/json")
-        |> send_resp(401, information("Unauthorized", ["Username or password is incorrect"]))
+        |> send_resp(401, error("InvalidCredentials"))
         |> halt()
     end
   end

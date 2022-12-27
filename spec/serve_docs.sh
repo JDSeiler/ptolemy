@@ -1,6 +1,6 @@
 #!/bin/bash
 
-raml2html ptolemy.raml > ptolemy.html
+raml2html -v ptolemy.raml > ptolemy.html
 
 python3 -m http.server 9000 &
 
@@ -15,7 +15,7 @@ trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 inotifywait -e close_write,moved_to,create -m . |
 while read -r directory events filename; do
   if [ "$filename" = "ptolemy.raml" ]; then
-    raml2html ptolemy.raml > ptolemy.html
+    raml2html -v ptolemy.raml > ptolemy.html
   fi
 done
 
