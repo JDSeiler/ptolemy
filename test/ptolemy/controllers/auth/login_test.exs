@@ -22,6 +22,7 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
     )
 
     create_user("test@example.com", "jds", "sooper_secret")
+    verify_email("test@example.com")
     :ok
   end
 
@@ -38,8 +39,8 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
     assert conn.state == :sent
     assert conn.status == 401
 
-    assert conn.resp_body ==
-             "{\"details\":[\"Username or password is incorrect\"],\"message\":\"Unauthorized\"}"
+    parsed_body = Jason.decode!(conn.resp_body)
+    assert parsed_body["kind"] == "InvalidCredentials"
   end
 
   test "failed login due to wrong password" do
@@ -48,8 +49,30 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
     assert conn.state == :sent
     assert conn.status == 401
 
-    assert conn.resp_body ==
-             "{\"details\":[\"Username or password is incorrect\"],\"message\":\"Unauthorized\"}"
+    parsed_body = Jason.decode!(conn.resp_body)
+    assert parsed_body["kind"] == "InvalidCredentials"
+  end
+
+  test "failed login due to unverified email" do
+    # `expect` calls accumulate. I expect `send_email` to be called
+    # once in my setup, and I expect it to be called once in this test.
+    # At verification time, we expect 2 total calls to `send_email`
+    Ptolemy.Services.MockMailer
+     |> expect(
+       :send_email,
+       1,
+       fn _subject, _html_body, _recipients -> :ok end
+     )
+
+    create_user("junkmail@example.com", "wont_verify", "sooper_secret")
+
+    conn = send_login_req("wont_verify", "sooper_secret")
+
+    assert conn.state == :sent
+    assert conn.status == 401
+
+    parsed_body = Jason.decode!(conn.resp_body)
+    assert parsed_body["kind"] == "UnverifiedEmail"
   end
 
   test "successful login creates a session" do
@@ -61,7 +84,7 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
              %{
                id: _,
                email: "test@example.com",
-               email_verification_status: "pending",
+               email_verification_status: "verified",
                username: "jds"
              },
              authenticated_user
