@@ -105,13 +105,11 @@ version: v1
           description: Authentication failed
           body:
             application/json:
-              type: Info
-              example:
-                message: Unauthorized
-                details: [Username or password is incorrect]
+              type: InvalidCredentials | UnverifiedEmail
     
 types:
   Info:
+    type: object
     description: |
       An informational response. The `message` property is a status message
       that should correspond to the HTTP status code's default message. The
@@ -120,3 +118,23 @@ types:
     properties:
       message: string
       details: string[]
+  Error:
+    type: object
+    discriminator: kind
+    description: |
+      Used to differentiate between various application level errors. The `kind`
+      property is used to discriminate between variants, and the `details`
+      property MAY contain additional information. By default, it will be an
+      empty object.
+    properties:
+      kind: string
+      details:
+        type: object
+        default: {}
+  InvalidCredentials:
+    type: Error 
+    description: |
+      The username provided does not exist, or the provided password is incorrect
+  UnverifiedEmail:
+    type: Error 
+    description: The user attempted to log in without verifying their email.
