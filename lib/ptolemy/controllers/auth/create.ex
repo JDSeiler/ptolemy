@@ -48,20 +48,22 @@ defmodule Ptolemy.Controllers.Auth.Create do
       send_resp(conn, 201, Resp.information("Created"))
     else
       {:error, changeset} ->
-        error_list = reformat_errors_for_json(changeset.errors)
+        # Warning to self: Their could be errors for OTHER reasons, but I am
+        # naively pretending that if there's an error, it's because of a violation
+        # of the unique index on email or username.
+        duplicate_fields = Enum.map(changeset.errors, fn {key, {_msg, _details}} ->
+          key
+        end)
 
         Plug.Conn.put_resp_header(conn, "content-type", "application/json")
-        |> send_resp(422, Resp.information("Unprocessable Entity", error_list))
+        |> send_resp(
+            422,
+            Resp.error("DuplicateFields", %{fields: duplicate_fields})
+          )
     end
   end
 
   # Private Functions
-
-  defp reformat_errors_for_json(errors) do
-    Enum.map(errors, fn {key, {msg, _details}} ->
-      "#{key} has the following error: #{msg}"
-    end)
-  end
 
   defp set_verification_code(email, verification_code) do
     Ptolemy.Repo.insert(%VerificationCode{email: email, code: verification_code})
