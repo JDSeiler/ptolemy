@@ -19,7 +19,13 @@ defmodule Ptolemy.RootRouter do
     signing_salt: Application.compile_env(:ptolemy, :signing_salt),
     log: :debug
   )
+  # For now, only configure CORS to accept requests from my local WebPack
+  # server. A production deployment will make this more complicated, but
+  # we can keep it simple for now.
+  plug(CORSPlug, origin: ["http://localhost:3000"])
 
+  # The order of the plugs here is important because we need CORSPlug
+  # to intercept OPTIONS requests, which are otherwise undefined.
   plug(:match)
   plug(:dispatch)
 
@@ -28,6 +34,7 @@ defmodule Ptolemy.RootRouter do
   end
 
   use Plug.ErrorHandler
+
 
   forward("/auth", to: Ptolemy.Routes.Auth)
 

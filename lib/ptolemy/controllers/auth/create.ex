@@ -42,7 +42,12 @@ defmodule Ptolemy.Controllers.Auth.Create do
           {:error, msg} -> Resp.error(msg)
         end
       else
-        debug("Verification code for email: #{user.email} is #{verification_code}")
+        query_params = %{"email" => user.email, "code" => verification_code}
+        encoded_query_params = URI.encode_query(query_params)
+
+        verification_url =
+          "http://localhost:3000/verify?#{encoded_query_params}"
+        debug("Verification link: #{verification_url}")
       end
 
       send_resp(conn, 201, Resp.information("Created"))
@@ -85,7 +90,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     encoded_query_params = URI.encode_query(query_params)
 
     html_body =
-      "Please verify your email by visiting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
+      "Please verify your email by visiting the following link: <a href=\"http://localhost:3000/verify?#{encoded_query_params}\">Click to verify</a>"
 
     recipients = [
       %{

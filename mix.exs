@@ -31,6 +31,7 @@ defmodule Ptolemy.MixProject do
     [
       {:plug, "~> 1.13"},
       {:plug_cowboy, "~> 2.0"},
+      {:cors_plug, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.4"},
