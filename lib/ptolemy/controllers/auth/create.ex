@@ -85,7 +85,7 @@ defmodule Ptolemy.Controllers.Auth.Create do
     encoded_query_params = URI.encode_query(query_params)
 
     html_body =
-      "Please verify your email by visiting the following link: <a href=\"http://localhost:4001?#{encoded_query_params}\">Click to verify</a>"
+      "Please verify your email by visiting the following link: <a href=\"http://localhost:3000/verify?#{encoded_query_params}\">Click to verify</a>"
 
     recipients = [
       %{
