@@ -2,6 +2,7 @@ defmodule Ptolemy.AuthHelpers do
   use Plug.Test
 
   alias Ptolemy.Controllers.Auth.Verify
+  alias Ptolemy.RootRouter
   alias Ptolemy.Schemas.VerificationCode
   alias Ptolemy.Controllers.Auth.Create
 
@@ -51,5 +52,24 @@ defmodule Ptolemy.AuthHelpers do
       |> Verify.call(opts)
 
     conn
+  end
+
+  @spec send_login_req(String.t(), String.t()) :: Plug.Conn.t()
+  @doc """
+  Attempts to login using the provided username and password.
+  """
+  def send_login_req(username, password) do
+    body =
+      Jason.encode!(%{
+        username: username,
+        password: password
+      })
+
+    opts = RootRouter.init([])
+
+    :post
+    |> conn("/auth/login", body)
+    |> put_req_header("content-type", "application/json")
+    |> RootRouter.call(opts)
   end
 end

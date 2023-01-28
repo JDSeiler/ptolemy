@@ -5,12 +5,6 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
   import Mox
   import Ptolemy.AuthHelpers
 
-  # Here we need to use the entire Plug pipeline because the
-  # RootRouter contains all the Session configuration.
-  alias Ptolemy.RootRouter, as: Root
-
-  @opts Root.init([])
-
   setup context do
     verify_on_exit!(context)
 
@@ -100,18 +94,5 @@ defmodule Ptolemy.Controllers.Auth.LoginTest do
              },
              conn.resp_cookies
            )
-  end
-
-  defp send_login_req(username, password) do
-    body =
-      Jason.encode!(%{
-        username: username,
-        password: password
-      })
-
-    :post
-    |> conn("/auth/login", body)
-    |> put_req_header("content-type", "application/json")
-    |> Root.call(@opts)
   end
 end
