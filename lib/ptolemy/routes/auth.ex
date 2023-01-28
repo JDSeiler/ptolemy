@@ -10,4 +10,6 @@ defmodule Ptolemy.Routes.Auth do
   post "/verify", to: Auth.Verify
 
   post "/login", to: Auth.Login
+
+  get "/heartbeat", to: Auth.Heartbeat
 end
