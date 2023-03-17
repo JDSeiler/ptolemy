@@ -37,6 +37,7 @@ defmodule Ptolemy.RootRouter do
 
 
   forward("/auth", to: Ptolemy.Routes.Auth)
+  forward("/agencies", to: Ptolemy.Routes.Agencies)
 
   # Ripped straight from the Plug.Router docs
   @impl Plug.ErrorHandler
