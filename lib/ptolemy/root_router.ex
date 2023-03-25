@@ -8,6 +8,7 @@ defmodule Ptolemy.RootRouter do
     store: :cookie,
     key: "_ptolemy",
     http_only: true,
+    domain: "localhost",
     # TODO: use Secure attribute on the cookie
     # I can only set up the Secure attribute once Ptolemy is being
     # accessed via HTTPS
