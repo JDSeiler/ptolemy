@@ -1,0 +1,24 @@
+# https://github.com/docker-library/docs/blob/master/postgres/README.md
+version: '3.8'
+
+# This compose file is just for Postgres, not the app itself.
+
+services:
+  db:
+    image: postgres
+    environment:
+      # default user is just "postgres"
+      POSTGRES_PASSWORD: s5ux2iKIRLyLG19H4WsaYkIg
+      POSTGRES_DB: ptolemy_dev
+    
+    # Expose the Postgres port so that any DB client can be used to access to server.
+    ports:
+      - target: 5432
+        published: 5432
+        protocol: tcp
+
+  # adminer is on the same bridge network so it can access the DB already
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080

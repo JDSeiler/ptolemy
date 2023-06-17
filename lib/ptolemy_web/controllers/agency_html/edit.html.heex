@@ -1,0 +1,8 @@
+<.header>
+  Edit Agency <%= @agency.id %>
+  <:subtitle>Use this form to manage agency records in your database.</:subtitle>
+</.header>
+
+<.agency_form changeset={@changeset} action={~p"/agencies/#{@agency}"} />
+
+<.back navigate={~p"/agencies"}>Back to agencies</.back>
