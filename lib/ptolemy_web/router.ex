@@ -22,12 +22,6 @@ defmodule PtolemyWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", PtolemyWeb do
-    pipe_through :browser
-
-    get "/", PageController, :home
-  end
-
   # scope "/api", PtolemyWeb do
   #   pipe_through :api
   # end
@@ -68,6 +62,8 @@ defmodule PtolemyWeb.Router do
   scope "/", PtolemyWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    resources "/agencies", AgencyController
+
     live_session :require_authenticated_user,
       on_mount: [{PtolemyWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
@@ -78,6 +74,7 @@ defmodule PtolemyWeb.Router do
   scope "/", PtolemyWeb do
     pipe_through [:browser]
 
+    get "/", PageController, :home
     delete "/users/log_out", UserSessionController, :delete
 
     live_session :current_user,

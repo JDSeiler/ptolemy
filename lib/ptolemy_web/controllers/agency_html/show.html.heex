@@ -1,0 +1,16 @@
+<.header>
+  Agency <%= @agency.id %>
+  <:subtitle>This is a agency record from your database.</:subtitle>
+  <:actions>
+    <.link href={~p"/agencies/#{@agency}/edit"}>
+      <.button>Edit agency</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Agency name"><%= @agency.agency_name %></:item>
+  <:item title="Balance"><%= @agency.balance %></:item>
+</.list>
+
+<.back navigate={~p"/agencies"}>Back to agencies</.back>

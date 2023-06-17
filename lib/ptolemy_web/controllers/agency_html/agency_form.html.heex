@@ -1,0 +1,10 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+  <.input field={f[:agency_name]} type="text" label="Agency name" />
+  <.input field={f[:balance]} type="number" label="Balance" step="any" />
+  <:actions>
+    <.button>Save Agency</.button>
+  </:actions>
+</.simple_form>
