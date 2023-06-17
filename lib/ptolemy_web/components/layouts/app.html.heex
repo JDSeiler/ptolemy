@@ -4,7 +4,7 @@
     <div class="flex items-center gap-4 px-4 sm:px-6 lg:px-8 flex-1 justify-end">
       <%= if @current_user do %>
         <div class="text-sm text-zinc-900 dark:text-neutral-50">
-          <%= @current_user.email %>
+          <%= @current_user.username %>
         </div>
         <.link
           href={~p"/users/settings"}
