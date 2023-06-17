@@ -10,6 +10,11 @@ defmodule PtolemyWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  # For when I have an auth plug
+  # pipeline :auth do
+  #   plug PtolemyWeb.Authentication
+  # end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -18,9 +23,11 @@ defmodule PtolemyWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/login", LoginController, :index
+    get "/signup", SignupController, :index
+    get "/verify", VerifyController, :index
   end
 
-  # Other scopes may use custom stacks.
   # scope "/api", PtolemyWeb do
   #   pipe_through :api
   # end
